@@ -1,0 +1,9 @@
+c:\users\bartłomiej\documents\visual studio 2015\Projects\ATCommandsApp\ATCommandsApp\bin\Debug\ATCommandsApp.exe.config
+c:\users\bartłomiej\documents\visual studio 2015\Projects\ATCommandsApp\ATCommandsApp\bin\Debug\ATCommandsApp.exe
+c:\users\bartłomiej\documents\visual studio 2015\Projects\ATCommandsApp\ATCommandsApp\bin\Debug\ATCommandsApp.pdb
+c:\users\bartłomiej\documents\visual studio 2015\Projects\ATCommandsApp\ATCommandsApp\obj\Debug\ATCommandsApp.csprojResolveAssemblyReference.cache
+c:\users\bartłomiej\documents\visual studio 2015\Projects\ATCommandsApp\ATCommandsApp\obj\Debug\ATCommandsApp.Form1.resources
+c:\users\bartłomiej\documents\visual studio 2015\Projects\ATCommandsApp\ATCommandsApp\obj\Debug\ATCommandsApp.Properties.Resources.resources
+c:\users\bartłomiej\documents\visual studio 2015\Projects\ATCommandsApp\ATCommandsApp\obj\Debug\ATCommandsApp.csproj.GenerateResource.Cache
+c:\users\bartłomiej\documents\visual studio 2015\Projects\ATCommandsApp\ATCommandsApp\obj\Debug\ATCommandsApp.exe
+c:\users\bartłomiej\documents\visual studio 2015\Projects\ATCommandsApp\ATCommandsApp\obj\Debug\ATCommandsApp.pdb
