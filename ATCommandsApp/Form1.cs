@@ -18,6 +18,7 @@ namespace ATCommandsApp
         private SerialPort serialPort;
         int baudRate = 0;
         string port = "";
+        int waitTimeLimit = 2400;
 
         public Form1()
         {
@@ -70,7 +71,7 @@ namespace ATCommandsApp
                 string ss = serialPort.ReadExisting();
                 if (ss.EndsWith("\r\nOK\r\n"))
                 {
-                    logTextBox.AppendText("Modem is connected \r Sending message to : " + number);
+                    logTextBox.AppendText("Modem is connected \r Sending message to : " + number + "\n");
                 }
 
                 // serialPort.Close();
@@ -152,19 +153,20 @@ namespace ATCommandsApp
 
         private void brandButton_Click(object sender, EventArgs e)
         {
-            if (sendATMessage("AT+CGMI\r") == null)
+            if (sendATMessage("AT+CGMI\r", waitTimeLimit, 10) == null)
                 logTextBox.AppendText("Manufacturer informaton error" + "\n");
 
         }
 
         private void batteryButton_Click(object sender, EventArgs e)
         {
-            if (sendATMessage("AT+CBC=?\r") == null)
+            if (sendATMessage("AT+CBC=?\r", waitTimeLimit, 10) == null)
                 logTextBox.AppendText("Battery informaton error" + "\n");
 
         }
-        //connect the device, send AT message and return the request
-        private string sendATMessage(string ATmessage)
+        //connect the device, send AT message and return the request. It takes waitTime 
+        //as a maximum waiting time for response and minimum bytesThreshold in buffer
+        private string sendATMessage(string ATmessage, int waitTime, int bufferBytesThreshold)
         {
             if (!isConfigured())
                 return null;
@@ -178,8 +180,27 @@ namespace ATCommandsApp
             Thread.Sleep(500);
 
             serialPort.Write(ATmessage);
-            Thread.Sleep(1700);
-            string ss = serialPort.ReadExisting();
+
+            
+            string ss = "";
+            int counter = waitTime;
+            //while (serialPort.BytesToRead < bufferBytesThreshold && counter>0)
+            //{
+            //    Thread.Sleep(300);
+            //    counter -= 300;
+                
+            //}
+            //Thread.Sleep(300);
+
+            while(!ss.EndsWith("\r\nOK\r\n") && !ss.EndsWith("\r\nERROR\r\n")){
+                ss += serialPort.ReadExisting();
+                Thread.Sleep(300);
+                counter -= 300;
+            }
+
+            //while(serialPort.BytesToRead>0)
+            //    ss += serialPort.ReadExisting();
+
             if (ss.EndsWith("\r\nOK\r\n"))
             {
                 logTextBox.AppendText(ss + "    \n   ");
@@ -188,16 +209,12 @@ namespace ATCommandsApp
             {
                 return null;
             }
-            //TODO: wyciagniej z odpowiedzi tylko info o producencie
-
-            //serialPort.Close();
-
             return ss;
         }
 
         private void imeiButton_Click(object sender, EventArgs e)
         {
-            string response = sendATMessage("AT+GSN=?\r");
+            string response = sendATMessage("AT+GSN=?\r", waitTimeLimit, 15);
             if (response == null || response == "")
                 logTextBox.AppendText("IMEI informaton error" + "\n");
             else
@@ -221,15 +238,18 @@ namespace ATCommandsApp
 
         private bool openPort()
         {
+            port = portText.Text;
+            baudRate = (Int32)baudRateComboBox.SelectedItem;
             serialPort = new SerialPort(port, baudRate);
             try
             {
                 serialPort.Open();
+                logTextBox.AppendText("Port " + port + " is open \n\n");
                 return true;
             }
             catch (UnauthorizedAccessException ex)
             {
-                logTextBox.AppendText("WARNING: port busy \n");
+                logTextBox.AppendText("WARNING: port busy \n\n");
                 return false;
             }
         }
@@ -241,7 +261,7 @@ namespace ATCommandsApp
 
         private void signalButton_Click(object sender, EventArgs e)
         {
-            string response = sendATMessage("AT+CSQ\r");
+            string response = sendATMessage("AT+CSQ\r", waitTimeLimit, 15);
             if (response == null)
                 logTextBox.AppendText("Signal Stregth informaton error" + "\n");
 
@@ -260,58 +280,166 @@ namespace ATCommandsApp
 
         private void operatorButton_Click(object sender, EventArgs e)
         {
-            string response = sendATMessage("AT+COPS?\r");
+            string response = sendATMessage("AT+COPS?\r", waitTimeLimit, 15);
             if (response == null)
-                logTextBox.AppendText("Operator informaton error" + "\n");
+                logTextBox.AppendText("Operator information error" + "\n");
         }
 
         private void registrationButton_Click(object sender, EventArgs e)
         {
-            string response = sendATMessage("AT+CREG?\r");
+            string response = sendATMessage("AT+CREG?\r", waitTimeLimit, 10);
             if (response == null)
-                logTextBox.AppendText("Registration informaton error" + "\n");
-
-            string status = response.Substring(response.IndexOf(',') + 1, 1);
-            int statusValue = Int32.Parse(status);
-            switch (statusValue)
+                logTextBox.AppendText("Registration information error" + "\n");
+            else
             {
-                case 0:
-                    {
-                        logTextBox.AppendText("not registered \n");
-                        break;
-                    }
-                case 1:
-                    {
-                        logTextBox.AppendText("registered in home network \n");
+                string status = response.Substring(response.IndexOf(',') + 1, 1);
+                int statusValue = Int32.Parse(status);
+                switch (statusValue)
+                {
+                    case 0:
+                        {
+                            logTextBox.AppendText("not registered \n");
+                            break;
+                        }
+                    case 1:
+                        {
+                            logTextBox.AppendText("registered in home network \n");
 
 
-                        break;
-                    }
-                case 2:
-                    {
-                        logTextBox.AppendText("not registered, searching for network \n");
+                            break;
+                        }
+                    case 2:
+                        {
+                            logTextBox.AppendText("not registered, searching for network \n");
 
-                        break;
-                    }
-                case 3:
-                    {
-                        logTextBox.AppendText("registration forbidden \n");
+                            break;
+                        }
+                    case 3:
+                        {
+                            logTextBox.AppendText("registration forbidden \n");
 
-                        break;
-                    }
-                case 4:
-                    {
-                        logTextBox.AppendText("unknown status \n");
+                            break;
+                        }
+                    case 4:
+                        {
+                            logTextBox.AppendText("unknown status \n");
 
-                        break;
-                    }
-                case 5:
-                    {
-                        logTextBox.AppendText("registered, reoming \n");
+                            break;
+                        }
+                    case 5:
+                        {
+                            logTextBox.AppendText("registered, reoming \n");
 
-                        break;
-                    }
+                            break;
+                        }
+                }
             }
+        }
+
+        private void bearerTypeButton_Click(object sender, EventArgs e)
+        {
+            string response = sendATMessage("AT+CBST?\r", waitTimeLimit, 20);
+            if (response != null)
+            {
+
+
+                string[] responseRows;
+                responseRows = response.Split(' ');
+                string infoRow = responseRows[1];
+                string[] responseParameters;
+                if (infoRow.Contains(','))
+                {
+                    responseParameters = infoRow.Split(',');
+                    if (responseParameters.Length > 2)
+                    {
+                        int speed = Int32.Parse(responseParameters[0]);
+                        int name = Int32.Parse(responseParameters[1]);
+                        int mode = Int32.Parse(responseParameters[2].Substring(0, 1));
+
+
+                        switch (speed)
+                        {
+                            case 0:
+                                logTextBox.AppendText("Data transfer speed = 300b/s \n");
+                                break;
+                            case 1:
+                                logTextBox.AppendText("Data transfer speed = 1200/s \n");
+                                break;
+                            case 2:
+                                logTextBox.AppendText("Data transfer speed = 1200/s \n");
+                                break;
+                            case 3:
+                                logTextBox.AppendText("Data transfer speed = 2400/s \n");
+                                break;
+                            case 4:
+                                logTextBox.AppendText("Data transfer speed = 2400/s \n");
+                                break;
+                            case 5:
+                                logTextBox.AppendText("Data transfer speed = 4800/s \n");
+                                break;
+                            case 6:
+                                logTextBox.AppendText("Data transfer speed = 9600/s \n");
+                                break;
+                            case 65:
+                                logTextBox.AppendText("Data transfer speed = 300/s \n");
+                                break;
+                            case 66:
+                                logTextBox.AppendText("Data transfer speed = 1200/s \n");
+                                break;
+                            case 68:
+                                logTextBox.AppendText("Data transfer speed = 2400/s \n");
+                                break;
+                            case 70:
+                                logTextBox.AppendText("Data transfer speed = 4800/s \n");
+                                break;
+                            case 71:
+                                logTextBox.AppendText("Data transfer speed = 9600/s \n");
+                                break;
+                        }
+
+                        logTextBox.AppendText("Asynchronous dara circuit mode \n");
+                        switch (mode)
+                        {
+                            case 0:
+                                logTextBox.AppendText("Transparent radio connection  \n");
+                                break;
+                            case 1:
+                                logTextBox.AppendText("Not transparent radio connection  \n");
+                                break;
+                        }
+                    }
+                }
+                else
+                {
+                    logTextBox.AppendText("Response not valid \n");
+                }
+            }
+            else
+            {
+                logTextBox.AppendText("Empty response \n");
+            }
+        }
+
+        private void availableNetworksButton_Click(object sender, EventArgs e)
+        {
+            logTextBox.Clear();
+            logTextBox.AppendText("Please wait, it may take a while... \n");
+            logTextBox.AppendText("Up to 25 seconds \n\n");
+            string response = sendATMessage("AT+COPS=?\r", 25000, 250);
+            if (response == null)
+            {
+                logTextBox.AppendText("Emty Response \n");
+            }
+        }
+
+        private void atCommandButton_Click(object sender, EventArgs e)
+        {
+            logTextBox.Clear();
+            logTextBox.AppendText("List of supported AT Commands by this device: \n\n");
+            string response = sendATMessage("AT+CLAC\r", waitTimeLimit, 20);
+
+            if (response == null)
+                logTextBox.AppendText("Empty Response \n");
         }
     }
 }
