@@ -92,6 +92,8 @@ namespace ATCommandsApp
         private bool isConfigured()
         {
             port = portText.Text;
+            if (baudRate != 0 && port.Length < 5 && port.Length > 3)
+                return true;
 
             try
             {
@@ -153,15 +155,13 @@ namespace ATCommandsApp
 
         private void brandButton_Click(object sender, EventArgs e)
         {
-            if (sendATMessage("AT+CGMI\r", waitTimeLimit, 10) == null)
-                logTextBox.AppendText("Manufacturer informaton error" + "\n");
+            
 
         }
 
         private void batteryButton_Click(object sender, EventArgs e)
         {
-            if (sendATMessage("AT+CBC=?\r", waitTimeLimit, 10) == null)
-                logTextBox.AppendText("Battery informaton error" + "\n");
+            
 
         }
         //connect the device, send AT message and return the request. It takes waitTime 
@@ -179,52 +179,32 @@ namespace ATCommandsApp
 
             Thread.Sleep(500);
 
-            serialPort.Write(ATmessage);
-
+            lock (serialPort)
+            {
+                serialPort.Write(ATmessage);
+            }
             
             string ss = "";
             int counter = waitTime;
-            //while (serialPort.BytesToRead < bufferBytesThreshold && counter>0)
-            //{
-            //    Thread.Sleep(300);
-            //    counter -= 300;
-                
-            //}
-            //Thread.Sleep(300);
 
             while(!ss.EndsWith("\r\nOK\r\n") && !ss.EndsWith("\r\nERROR\r\n")){
                 ss += serialPort.ReadExisting();
+                if (counter < 0)
+                    break;
                 Thread.Sleep(300);
                 counter -= 300;
             }
 
-            //while(serialPort.BytesToRead>0)
-            //    ss += serialPort.ReadExisting();
-
             if (ss.EndsWith("\r\nOK\r\n"))
             {
-                logTextBox.AppendText(ss + "    \n   ");
+                return ss;
+                //logTextBox.AppendText(ss + "   \n\n");
             }
             else
             {
                 return null;
             }
-            return ss;
-        }
-
-        private void imeiButton_Click(object sender, EventArgs e)
-        {
-            string response = sendATMessage("AT+GSN=?\r", waitTimeLimit, 15);
-            if (response == null || response == "")
-                logTextBox.AppendText("IMEI informaton error" + "\n");
-            else
-            {
-                string imei = response.Substring(7);
-                logTextBox.AppendText("\n IMEI number: " + imei + "\n");
-
-            }
-
-        }
+        }     
 
         private void clearLogButton_Click(object sender, EventArgs e)
         {
@@ -252,6 +232,12 @@ namespace ATCommandsApp
                 logTextBox.AppendText("WARNING: port busy \n\n");
                 return false;
             }
+            catch (Exception ex)
+            {
+                logTextBox.AppendText("Device not ready \n\n");
+                return false;
+            }
+            
         }
 
         private void disconnectButton_Click(object sender, EventArgs e)
@@ -259,7 +245,183 @@ namespace ATCommandsApp
             serialPort.Close();
         }
 
-        private void signalButton_Click(object sender, EventArgs e)
+
+        
+
+        private void atCommandButton_Click(object sender, EventArgs e)
+        {
+            logTextBox.Clear();
+            logTextBox.AppendText("List of supported AT Commands by this device: \n\n");
+            string response = sendATMessage("AT+CLAC\r", 10000, 20);
+
+            if (response == null)
+                logTextBox.AppendText("Empty Response \n");
+            else
+            {
+                logTextBox.AppendText(response + "\n\n");
+            }
+        }
+
+        private void deviceInfoComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string selectedItemString = deviceInfoComboBox.SelectedItem.ToString();
+            if(selectedItemString.Equals("Device Info") )
+            {
+                executeDeviceInfoCommand();
+            }
+            else if (selectedItemString.Equals("IMEI Number"))
+            {
+                executeImeiNumberCommand();
+            }
+            else if (selectedItemString.Equals("Battery Level"))
+            {
+                executeBatteryLevelCommand();
+            }
+        }
+
+        
+
+        private void networkComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string selectedItemString = networkComboBox.SelectedItem.ToString();
+            if (selectedItemString.Equals("Signal Strength"))
+            {
+                executeSignalStrengthCommand();
+            }
+            else if (selectedItemString.Equals("Operator Info"))
+            {
+                executeOperatorCommand();
+            }
+            else if (selectedItemString.Equals("Available Networks"))
+            {
+                Thread t = new Thread(executeAvailableNetworksCommand);
+                t.Start();
+                //executeAvailableNetworksCommand();
+            }
+            else if (selectedItemString.Equals("Registration"))
+            {
+                executeRegistrationCommand();
+            }
+            else if (selectedItemString.Equals("IMSI"))
+            {
+                executeIMSICommand();
+            }
+        }
+
+        private void conncectionComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string selectedItemString = conncectionComboBox.SelectedItem.ToString();
+            if (selectedItemString.Equals("IP Address"))
+            {
+                if(executeConnectionStatusCommand())
+                    executeIpAddressCommand();
+                else
+                {
+                    logTextBox.AppendText("IP address is not available. Check if GPRS has been activated" + "\n");
+                }
+
+            }
+            else if (selectedItemString.Equals("Bearer Type"))
+            {
+                executeBearerTypeCommand();
+            }
+            else if (selectedItemString.Equals("Price Per Unit"))
+            {
+                executePriceCommand();
+            }
+            else if (selectedItemString.Equals("Connection Status"))
+            {
+                executeConnectionStatusCommand();
+            }
+        }
+
+        private bool executeConnectionStatusCommand()
+        {
+            //string response = sendATMessage("AT+CIFSR\r", waitTimeLimit, 10);
+            //if (response == null)
+            //    logTextBox.AppendText("Command Error" + "\n");
+            //else
+            //    logTextBox.AppendText(response);
+
+            string response = sendATMessage("AT+CGACT=?\r", waitTimeLimit, 10);
+            if (response == null)
+            {
+                logTextBox.AppendText("Command Error" + "\n");
+                logTextBox.AppendText("Device is NOT connected" + "\n");
+                return false;
+            }
+            else
+            {
+                logTextBox.AppendText(response);
+                if (response.Contains("+CGACT:"))
+                {
+                    if (response.Contains("+CGACT: (0,1)"))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        logTextBox.AppendText(response + "\n");
+                        return true;
+                    }
+                }
+                else
+                    return false;
+            }
+        }
+
+        private void executePriceCommand()
+        {
+            string response = sendATMessage("AT+CPUC?\r", waitTimeLimit, 5);
+            if (response == null)
+                logTextBox.AppendText("Price Per Unit Command Error" + "\n");
+            else
+                logTextBox.AppendText(response);
+        }
+
+        private void executeIpAddressCommand()
+        {
+            string response = sendATMessage("AT+CIFSR\r", waitTimeLimit, 5);
+            if (response == null)
+                logTextBox.AppendText("IP Address Command Error");
+            else
+            {
+                logTextBox.AppendText(response);
+            }
+        }
+
+        private void executeDeviceInfoCommand()
+        {
+            string response = sendATMessage("AT+CGMI\r", waitTimeLimit, 10);
+            if (response == null)
+                logTextBox.AppendText("Manufacturer informaton error" + "\n");
+            else
+                logTextBox.AppendText(response + "\n\n");
+        }
+
+        private void executeImeiNumberCommand()
+        {
+            string response = sendATMessage("AT+GSN=?\r", waitTimeLimit, 15);
+            if (response == null || response == "")
+                logTextBox.AppendText("IMEI informaton error" + "\n");
+            else
+            {
+                string imei = response.Substring(7);
+                logTextBox.AppendText("\n IMEI number: " + imei + "\n");
+
+            }
+        }
+
+        private void executeBatteryLevelCommand()
+        {
+            string response = sendATMessage("AT+CBC=?\r", waitTimeLimit, 10);
+            if (response == null)
+                logTextBox.AppendText("Battery informaton error" + "\n");
+            else
+                logTextBox.AppendText(response + "\n");
+        }
+
+        private void executeSignalStrengthCommand()
         {
             string response = sendATMessage("AT+CSQ\r", waitTimeLimit, 15);
             if (response == null)
@@ -278,14 +440,65 @@ namespace ATCommandsApp
             logTextBox.AppendText("\n The best stregth level is -53dBm, The worst -109dBm \n");
         }
 
-        private void operatorButton_Click(object sender, EventArgs e)
+        private void executeOperatorCommand()
         {
             string response = sendATMessage("AT+COPS?\r", waitTimeLimit, 15);
             if (response == null)
                 logTextBox.AppendText("Operator information error" + "\n");
         }
 
-        private void registrationButton_Click(object sender, EventArgs e)
+        private void executeAvailableNetworksCommand()
+        {
+            if (logTextBox.InvokeRequired)
+            {
+                logTextBox.Invoke((MethodInvoker)delegate
+                {
+                    logTextBox.Clear();
+                    logTextBox.AppendText("Please wait, it may take a while... \n");
+                    logTextBox.AppendText("Up to 50 seconds \n\n");   
+                });
+            }
+            string response = sendATMessage("AT+COPS=?\r", 50000, 250);
+            if (response == null)
+            {
+                if (logTextBox.InvokeRequired)
+                {
+                    logTextBox.Invoke((MethodInvoker)delegate
+                    {
+                        logTextBox.AppendText("Emty Response \n");
+                    });
+                }
+            }
+            else
+            {
+                if (logTextBox.InvokeRequired)
+                {
+                    logTextBox.Invoke((MethodInvoker)delegate
+                    {
+                        logTextBox.AppendText("status: 0 - unknown operator \n");
+                        logTextBox.AppendText("status: 1 - network avalable \n");
+                        logTextBox.AppendText("status: 2 - current network (logged in) \n");
+                        logTextBox.AppendText("status: 3 - access forbidden" + "\n\n");
+                        logTextBox.AppendText(response + "\n\n");
+                    });
+                }
+            }
+        }
+
+        private void executeIMSICommand()
+        {
+            string response = sendATMessage("AT+CIMI\r", waitTimeLimit, 5);
+            if (response == null)
+            {
+                logTextBox.AppendText("Cannot get IMSI Number" + "\n");
+            }
+            else
+            {
+                logTextBox.AppendText(response + "\n");
+            }
+        }
+
+        private void executeRegistrationCommand()
         {
             string response = sendATMessage("AT+CREG?\r", waitTimeLimit, 10);
             if (response == null)
@@ -304,39 +517,33 @@ namespace ATCommandsApp
                     case 1:
                         {
                             logTextBox.AppendText("registered in home network \n");
-
-
                             break;
                         }
                     case 2:
                         {
                             logTextBox.AppendText("not registered, searching for network \n");
-
                             break;
                         }
                     case 3:
                         {
                             logTextBox.AppendText("registration forbidden \n");
-
                             break;
                         }
                     case 4:
                         {
                             logTextBox.AppendText("unknown status \n");
-
                             break;
                         }
                     case 5:
                         {
                             logTextBox.AppendText("registered, reoming \n");
-
                             break;
                         }
                 }
             }
         }
 
-        private void bearerTypeButton_Click(object sender, EventArgs e)
+        private void executeBearerTypeCommand()
         {
             string response = sendATMessage("AT+CBST?\r", waitTimeLimit, 20);
             if (response != null)
@@ -420,26 +627,16 @@ namespace ATCommandsApp
             }
         }
 
-        private void availableNetworksButton_Click(object sender, EventArgs e)
+        private void commandModeSendButton_Click(object sender, EventArgs e)
         {
-            logTextBox.Clear();
-            logTextBox.AppendText("Please wait, it may take a while... \n");
-            logTextBox.AppendText("Up to 25 seconds \n\n");
-            string response = sendATMessage("AT+COPS=?\r", 25000, 250);
+            string command = commandTextBox.Text;
+            string response = sendATMessage(command + "\r", waitTimeLimit, 5);
             if (response == null)
             {
-                logTextBox.AppendText("Emty Response \n");
+                logTextBox.AppendText("Command error \n");
             }
-        }
-
-        private void atCommandButton_Click(object sender, EventArgs e)
-        {
-            logTextBox.Clear();
-            logTextBox.AppendText("List of supported AT Commands by this device: \n\n");
-            string response = sendATMessage("AT+CLAC\r", waitTimeLimit, 20);
-
-            if (response == null)
-                logTextBox.AppendText("Empty Response \n");
+            else
+                logTextBox.AppendText(response + "\n\n");
         }
     }
 }

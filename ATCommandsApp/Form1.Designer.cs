@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.modes = new System.Windows.Forms.TabControl();
             this.smsPage = new System.Windows.Forms.TabPage();
             this.label7 = new System.Windows.Forms.Label();
             this.smsNumberComboBox = new System.Windows.Forms.ComboBox();
@@ -45,14 +45,10 @@
             this.label5 = new System.Windows.Forms.Label();
             this.callNumberTextBox = new System.Windows.Forms.TextBox();
             this.diagnosticsPage = new System.Windows.Forms.TabPage();
-            this.availableNetworksButton = new System.Windows.Forms.Button();
-            this.bearerTypeButton = new System.Windows.Forms.Button();
-            this.registrationButton = new System.Windows.Forms.Button();
-            this.operatorButton = new System.Windows.Forms.Button();
-            this.signalButton = new System.Windows.Forms.Button();
-            this.imeiButton = new System.Windows.Forms.Button();
-            this.batteryButton = new System.Windows.Forms.Button();
-            this.brandButton = new System.Windows.Forms.Button();
+            this.conncectionComboBox = new System.Windows.Forms.ComboBox();
+            this.networkComboBox = new System.Windows.Forms.ComboBox();
+            this.deviceInfoComboBox = new System.Windows.Forms.ComboBox();
+            this.atCommandButton = new System.Windows.Forms.Button();
             this.logTextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.portText = new System.Windows.Forms.TextBox();
@@ -61,25 +57,30 @@
             this.connectButton = new System.Windows.Forms.Button();
             this.disconnectButton = new System.Windows.Forms.Button();
             this.clearLogButton = new System.Windows.Forms.Button();
-            this.atCommandButton = new System.Windows.Forms.Button();
-            this.tabControl1.SuspendLayout();
+            this.commandPage = new System.Windows.Forms.TabPage();
+            this.commandTextBox = new System.Windows.Forms.TextBox();
+            this.commandModeSendButton = new System.Windows.Forms.Button();
+            this.label8 = new System.Windows.Forms.Label();
+            this.modes.SuspendLayout();
             this.smsPage.SuspendLayout();
             this.callPage.SuspendLayout();
             this.diagnosticsPage.SuspendLayout();
+            this.commandPage.SuspendLayout();
             this.SuspendLayout();
             // 
-            // tabControl1
+            // modes
             // 
-            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.modes.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.tabControl1.Controls.Add(this.smsPage);
-            this.tabControl1.Controls.Add(this.callPage);
-            this.tabControl1.Controls.Add(this.diagnosticsPage);
-            this.tabControl1.Location = new System.Drawing.Point(-1, 64);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(275, 362);
-            this.tabControl1.TabIndex = 0;
+            this.modes.Controls.Add(this.smsPage);
+            this.modes.Controls.Add(this.callPage);
+            this.modes.Controls.Add(this.diagnosticsPage);
+            this.modes.Controls.Add(this.commandPage);
+            this.modes.Location = new System.Drawing.Point(-1, 64);
+            this.modes.Name = "modes";
+            this.modes.SelectedIndex = 0;
+            this.modes.Size = new System.Drawing.Size(275, 362);
+            this.modes.TabIndex = 0;
             // 
             // smsPage
             // 
@@ -233,15 +234,10 @@
             // 
             // diagnosticsPage
             // 
+            this.diagnosticsPage.Controls.Add(this.conncectionComboBox);
+            this.diagnosticsPage.Controls.Add(this.networkComboBox);
+            this.diagnosticsPage.Controls.Add(this.deviceInfoComboBox);
             this.diagnosticsPage.Controls.Add(this.atCommandButton);
-            this.diagnosticsPage.Controls.Add(this.availableNetworksButton);
-            this.diagnosticsPage.Controls.Add(this.bearerTypeButton);
-            this.diagnosticsPage.Controls.Add(this.registrationButton);
-            this.diagnosticsPage.Controls.Add(this.operatorButton);
-            this.diagnosticsPage.Controls.Add(this.signalButton);
-            this.diagnosticsPage.Controls.Add(this.imeiButton);
-            this.diagnosticsPage.Controls.Add(this.batteryButton);
-            this.diagnosticsPage.Controls.Add(this.brandButton);
             this.diagnosticsPage.Location = new System.Drawing.Point(4, 22);
             this.diagnosticsPage.Name = "diagnosticsPage";
             this.diagnosticsPage.Padding = new System.Windows.Forms.Padding(3);
@@ -250,85 +246,60 @@
             this.diagnosticsPage.Text = "Diagnostics";
             this.diagnosticsPage.UseVisualStyleBackColor = true;
             // 
-            // availableNetworksButton
+            // conncectionComboBox
             // 
-            this.availableNetworksButton.Location = new System.Drawing.Point(131, 182);
-            this.availableNetworksButton.Name = "availableNetworksButton";
-            this.availableNetworksButton.Size = new System.Drawing.Size(120, 23);
-            this.availableNetworksButton.TabIndex = 7;
-            this.availableNetworksButton.Text = "Available Networks";
-            this.availableNetworksButton.UseVisualStyleBackColor = true;
-            this.availableNetworksButton.Click += new System.EventHandler(this.availableNetworksButton_Click);
+            this.conncectionComboBox.FormattingEnabled = true;
+            this.conncectionComboBox.Items.AddRange(new object[] {
+            "IP Address",
+            "Bearer Type",
+            "Price per Unit",
+            "Connection Status"});
+            this.conncectionComboBox.Location = new System.Drawing.Point(66, 168);
+            this.conncectionComboBox.Name = "conncectionComboBox";
+            this.conncectionComboBox.Size = new System.Drawing.Size(143, 21);
+            this.conncectionComboBox.TabIndex = 11;
+            this.conncectionComboBox.Text = "Connection Informations";
+            this.conncectionComboBox.SelectedIndexChanged += new System.EventHandler(this.conncectionComboBox_SelectedIndexChanged);
             // 
-            // bearerTypeButton
+            // networkComboBox
             // 
-            this.bearerTypeButton.Location = new System.Drawing.Point(13, 182);
-            this.bearerTypeButton.Name = "bearerTypeButton";
-            this.bearerTypeButton.Size = new System.Drawing.Size(75, 23);
-            this.bearerTypeButton.TabIndex = 6;
-            this.bearerTypeButton.Text = "Bearer Type";
-            this.bearerTypeButton.UseVisualStyleBackColor = true;
-            this.bearerTypeButton.Click += new System.EventHandler(this.bearerTypeButton_Click);
+            this.networkComboBox.FormattingEnabled = true;
+            this.networkComboBox.Items.AddRange(new object[] {
+            "Signal Strength",
+            "Operator Info",
+            "Available Networks",
+            "Registration",
+            "IMSI"});
+            this.networkComboBox.Location = new System.Drawing.Point(66, 99);
+            this.networkComboBox.Name = "networkComboBox";
+            this.networkComboBox.Size = new System.Drawing.Size(143, 21);
+            this.networkComboBox.TabIndex = 10;
+            this.networkComboBox.Text = "Network Informations";
+            this.networkComboBox.SelectedIndexChanged += new System.EventHandler(this.networkComboBox_SelectedIndexChanged);
             // 
-            // registrationButton
+            // deviceInfoComboBox
             // 
-            this.registrationButton.Location = new System.Drawing.Point(158, 126);
-            this.registrationButton.Name = "registrationButton";
-            this.registrationButton.Size = new System.Drawing.Size(75, 23);
-            this.registrationButton.TabIndex = 5;
-            this.registrationButton.Text = "registration";
-            this.registrationButton.UseVisualStyleBackColor = true;
-            this.registrationButton.Click += new System.EventHandler(this.registrationButton_Click);
+            this.deviceInfoComboBox.FormattingEnabled = true;
+            this.deviceInfoComboBox.Items.AddRange(new object[] {
+            "Device Info",
+            "IMEI Number",
+            "Battery Level"});
+            this.deviceInfoComboBox.Location = new System.Drawing.Point(66, 32);
+            this.deviceInfoComboBox.Name = "deviceInfoComboBox";
+            this.deviceInfoComboBox.Size = new System.Drawing.Size(143, 21);
+            this.deviceInfoComboBox.TabIndex = 9;
+            this.deviceInfoComboBox.Text = "Device Informations";
+            this.deviceInfoComboBox.SelectedIndexChanged += new System.EventHandler(this.deviceInfoComboBox_SelectedIndexChanged);
             // 
-            // operatorButton
+            // atCommandButton
             // 
-            this.operatorButton.Location = new System.Drawing.Point(13, 126);
-            this.operatorButton.Name = "operatorButton";
-            this.operatorButton.Size = new System.Drawing.Size(75, 23);
-            this.operatorButton.TabIndex = 4;
-            this.operatorButton.Text = "operator";
-            this.operatorButton.UseVisualStyleBackColor = true;
-            this.operatorButton.Click += new System.EventHandler(this.operatorButton_Click);
-            // 
-            // signalButton
-            // 
-            this.signalButton.Location = new System.Drawing.Point(149, 76);
-            this.signalButton.Name = "signalButton";
-            this.signalButton.Size = new System.Drawing.Size(94, 23);
-            this.signalButton.TabIndex = 3;
-            this.signalButton.Text = "Signal Strength";
-            this.signalButton.UseVisualStyleBackColor = true;
-            this.signalButton.Click += new System.EventHandler(this.signalButton_Click);
-            // 
-            // imeiButton
-            // 
-            this.imeiButton.Location = new System.Drawing.Point(13, 76);
-            this.imeiButton.Name = "imeiButton";
-            this.imeiButton.Size = new System.Drawing.Size(75, 23);
-            this.imeiButton.TabIndex = 2;
-            this.imeiButton.Text = "IMEI";
-            this.imeiButton.UseVisualStyleBackColor = true;
-            this.imeiButton.Click += new System.EventHandler(this.imeiButton_Click);
-            // 
-            // batteryButton
-            // 
-            this.batteryButton.Location = new System.Drawing.Point(158, 26);
-            this.batteryButton.Name = "batteryButton";
-            this.batteryButton.Size = new System.Drawing.Size(75, 23);
-            this.batteryButton.TabIndex = 1;
-            this.batteryButton.Text = "Battery";
-            this.batteryButton.UseVisualStyleBackColor = true;
-            this.batteryButton.Click += new System.EventHandler(this.batteryButton_Click);
-            // 
-            // brandButton
-            // 
-            this.brandButton.Location = new System.Drawing.Point(13, 27);
-            this.brandButton.Name = "brandButton";
-            this.brandButton.Size = new System.Drawing.Size(75, 23);
-            this.brandButton.TabIndex = 0;
-            this.brandButton.Text = "Device";
-            this.brandButton.UseVisualStyleBackColor = true;
-            this.brandButton.Click += new System.EventHandler(this.brandButton_Click);
+            this.atCommandButton.Location = new System.Drawing.Point(77, 275);
+            this.atCommandButton.Name = "atCommandButton";
+            this.atCommandButton.Size = new System.Drawing.Size(113, 52);
+            this.atCommandButton.TabIndex = 8;
+            this.atCommandButton.Text = "List All Supported AT Commands";
+            this.atCommandButton.UseVisualStyleBackColor = true;
+            this.atCommandButton.Click += new System.EventHandler(this.atCommandButton_Click);
             // 
             // logTextBox
             // 
@@ -411,15 +382,48 @@
             this.clearLogButton.UseVisualStyleBackColor = true;
             this.clearLogButton.Click += new System.EventHandler(this.clearLogButton_Click);
             // 
-            // atCommandButton
+            // commandPage
             // 
-            this.atCommandButton.Location = new System.Drawing.Point(13, 233);
-            this.atCommandButton.Name = "atCommandButton";
-            this.atCommandButton.Size = new System.Drawing.Size(75, 52);
-            this.atCommandButton.TabIndex = 8;
-            this.atCommandButton.Text = "Supported AT Commands";
-            this.atCommandButton.UseVisualStyleBackColor = true;
-            this.atCommandButton.Click += new System.EventHandler(this.atCommandButton_Click);
+            this.commandPage.Controls.Add(this.label8);
+            this.commandPage.Controls.Add(this.commandModeSendButton);
+            this.commandPage.Controls.Add(this.commandTextBox);
+            this.commandPage.Location = new System.Drawing.Point(4, 22);
+            this.commandPage.Name = "commandPage";
+            this.commandPage.Padding = new System.Windows.Forms.Padding(3);
+            this.commandPage.Size = new System.Drawing.Size(267, 336);
+            this.commandPage.TabIndex = 3;
+            this.commandPage.Text = "Command Mode";
+            this.commandPage.UseVisualStyleBackColor = true;
+            // 
+            // commandTextBox
+            // 
+            this.commandTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.commandTextBox.Location = new System.Drawing.Point(38, 62);
+            this.commandTextBox.Name = "commandTextBox";
+            this.commandTextBox.Size = new System.Drawing.Size(195, 20);
+            this.commandTextBox.TabIndex = 0;
+            // 
+            // commandModeSendButton
+            // 
+            this.commandModeSendButton.Location = new System.Drawing.Point(98, 141);
+            this.commandModeSendButton.Name = "commandModeSendButton";
+            this.commandModeSendButton.Size = new System.Drawing.Size(75, 23);
+            this.commandModeSendButton.TabIndex = 1;
+            this.commandModeSendButton.Text = "Send";
+            this.commandModeSendButton.UseVisualStyleBackColor = true;
+            this.commandModeSendButton.Click += new System.EventHandler(this.commandModeSendButton_Click);
+            // 
+            // label8
+            // 
+            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(80, 46);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(113, 13);
+            this.label8.TabIndex = 2;
+            this.label8.Text = "Provide AT Command:";
             // 
             // Form1
             // 
@@ -434,15 +438,17 @@
             this.Controls.Add(this.portText);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.logTextBox);
-            this.Controls.Add(this.tabControl1);
+            this.Controls.Add(this.modes);
             this.Name = "Form1";
             this.Text = "Form1";
-            this.tabControl1.ResumeLayout(false);
+            this.modes.ResumeLayout(false);
             this.smsPage.ResumeLayout(false);
             this.smsPage.PerformLayout();
             this.callPage.ResumeLayout(false);
             this.callPage.PerformLayout();
             this.diagnosticsPage.ResumeLayout(false);
+            this.commandPage.ResumeLayout(false);
+            this.commandPage.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -450,7 +456,7 @@
 
         #endregion
 
-        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabControl modes;
         private System.Windows.Forms.TabPage smsPage;
         private System.Windows.Forms.TabPage callPage;
         private System.Windows.Forms.TextBox logTextBox;
@@ -475,15 +481,14 @@
         private System.Windows.Forms.Button clearLogButton;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.ComboBox smsNumberComboBox;
-        private System.Windows.Forms.Button brandButton;
-        private System.Windows.Forms.Button batteryButton;
-        private System.Windows.Forms.Button imeiButton;
-        private System.Windows.Forms.Button signalButton;
-        private System.Windows.Forms.Button operatorButton;
-        private System.Windows.Forms.Button registrationButton;
-        private System.Windows.Forms.Button bearerTypeButton;
-        private System.Windows.Forms.Button availableNetworksButton;
         private System.Windows.Forms.Button atCommandButton;
+        private System.Windows.Forms.ComboBox deviceInfoComboBox;
+        private System.Windows.Forms.ComboBox conncectionComboBox;
+        private System.Windows.Forms.ComboBox networkComboBox;
+        private System.Windows.Forms.TabPage commandPage;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Button commandModeSendButton;
+        private System.Windows.Forms.TextBox commandTextBox;
     }
 }
 
